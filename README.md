@@ -26,6 +26,34 @@ This project was engineered to solve the "blind spot" problem in urban environme
 *   **💾 Intelligent Recording**: Automated loop recording with localized storage and easy playback retrieval.
 *   **💻 Cross-Platform**: Runs seamlessly on **Raspberry Pi 4/5**, **NVIDIA Jetson Nano**, and **Windows** (Simulation Mode).
 
+## 🏗️ System Architecture & Workflow
+
+VisionGuard operates on a high-concurrency, multithreaded architecture designed for real-time edge processing:
+
+### 1. High-Level Workflow
+```mermaid
+graph TD
+    A[Camera Streams] --> B[CameraProcessor Threads]
+    B --> C{AI Inference Loop}
+    C -->|YOLO26| D[Object Detection]
+    D --> E[ROI Filtering]
+    E --> F[Global State Manager]
+    F --> G[MessageManager]
+    F --> H[Flask Web Dashboard]
+    G -->|Logic| I[Audio Alerts]
+    G -->|Logic| J[LED Warning System]
+    H -->|User Input| E[ROI Config Update]
+```
+
+### 2. Operational Breakdown
+1.  **Initialization**: The system initializes the hardware abstraction layer (HAL), falling back to simulation mode if GPIO libraries are missing. It then loads the **YOLO26n** model optimized for the specific device.
+2.  **Detection Pipeline**: Each camera stream runs in an isolated thread. Frames are captured, passed through the YOLO26 model, and then filtered by User-Defined **ROI (Region of Interest)** polygons.
+3.  **Global State Management**: Detection results (e.g., "Pedestrian in Zone A") are synchronized across a thread-safe global state.
+4.  **Autonomous Response**: The `MessageManager` monitors the global state and executes pre-defined safety logic:
+    *   **Go Mode**: Triggered when a green light is detected with pedestrians waiting.
+    *   **Stop Mode**: Triggered when red lights or hazardous crossing conditions are detected.
+5.  **User Visualization**: The Flask-based dashboard provides a low-latency MJPEG stream and interactive tools for real-time monitoring and ROI configuration.
+
 ## 🛠️ Technical Stack
 
 - **Core AI**: `Ultralytics YOLO26`, `PyTorch`, `OpenCV`
