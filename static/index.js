@@ -90,6 +90,8 @@ function initializeNavigation() {
       const password = passwordInput.value;
 
       // Simple hardcoded check (as requested)
+      // --- DEMO CREDENTIALS FOR PORTFOLIO ---
+      // These are default credentials to allow access to the dashboard in this demo.
       if (username === 'admin' && password === 'spas@2024') {
         isAdminLoggedIn = true;
         loginModal.hide();
