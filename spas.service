@@ -1,0 +1,19 @@
+[Unit]
+Description=Smart Pedestrian Alert System
+After=network.target sound.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/Desktop/spas
+ExecStart=/home/pi/Desktop/spas/.venv/bin/python /home/pi/Desktop/spas/main.py
+Restart=always
+RestartSec=10
+Environment=DISPLAY=:0
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=PULSE_SERVER=unix:/run/user/1000/pulse/native
+SupplementaryGroups=audio video
+
+[Install]
+WantedBy=multi-user.target

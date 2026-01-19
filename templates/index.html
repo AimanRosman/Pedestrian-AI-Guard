@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VisionGuard | AI Surveillance</title>
+  <link rel="icon" href="{{ url_for('static', filename='tablogo.png') }}" type="image/png">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='fonts.css') }}" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== VIOLET/PURPLE PREMIUM THEME ===== */
+    :root {
+      --accent: #8b5cf6;
+      --accent-hover: #7c3aed;
+      --accent-subtle: rgba(139, 92, 246, 0.15);
+      --accent-glow: rgba(139, 92, 246, 0.4);
+      --bg-dark: #0f0f1a;
+      --bg-card: rgba(30, 30, 50, 0.7);
+      --bg-sidebar: rgba(20, 20, 35, 0.95);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --gradient-start: #1e1b4b;
+      --gradient-end: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Outfit", sans-serif;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      min-height: 100vh;
+      color: var(--text-primary);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-brand {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .sidebar-brand img {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+    }
+
+    .sidebar-brand-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 1rem 0;
+    }
+
+    .nav-item {
+      padding: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--accent-subtle);
+    }
+
+    .nav-link.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      margin-left: 260px;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-icon {
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+      background: var(--accent-subtle);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ===== GLASS CARDS ===== */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header-custom {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title-custom {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .card-body-custom {
+      padding: 1.25rem;
+    }
+
+    /* ===== CAMERA GRID ===== */
+    .camera-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .camera-feed {
+      position: relative;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+    }
+
+    .camera-feed img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .camera-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+    }
+
+    .camera-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .camera-status {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .camera-status.online {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .camera-status.offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .camera-status.recording {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      animation: pulse 1s infinite;
+    }
+
+    .camera-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #4b5563;
+      font-size: 3rem;
+    }
+
+    .expand-btn {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .expand-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* ===== STATS CARDS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 1.25rem;
+      border: 1px solid var(--border-subtle);
+      text-align: center;
+    }
+
+    .stat-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ===== DETECTION STATUS ===== */
+    .detection-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .detection-item {
+      padding: 1.25rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .detection-item.traffic-stop {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.05));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .detection-item.traffic-go {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .detection-item.people-detected {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.05));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .detection-item.people-clear {
+      background: linear-gradient(135deg, rgba(100, 116, 139, 0.2), rgba(100, 116, 139, 0.05));
+      border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .detection-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .detection-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn-primary-custom {
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      border: none;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary-custom:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    /* ===== FORM CONTROLS ===== */
+    .form-control,
+    .form-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-subtle);
+      outline: none;
+    }
+
+    .form-label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== HIDDEN PAGES ===== */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .camera-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== MODAL OVERRIDES ===== */
+    .modal-content {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+    }
+
+    .modal-header {
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .modal-footer {
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ===== TABLE STYLES ===== */
+    .table {
+      color: var(--text-primary);
+    }
+
+    .table thead th {
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .table tbody tr:hover {
+      background: var(--accent-subtle);
+    }
+
+    /* ===== TABS ===== */
+    .nav-tabs {
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-tabs .nav-link {
+      color: var(--text-secondary);
+      border: none;
+      padding: 0.75rem 1.25rem;
+    }
+
+    .nav-tabs .nav-link:hover {
+      color: var(--text-primary);
+      border: none;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--accent);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    /* ===== ROI MODAL ===== */
+    #drawZoneModal-video-container {
+      position: relative;
+      background-color: #000;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+    }
+
+    #drawZoneModal-video-stream {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      object-fit: contain;
+    }
+
+    #drawZoneModal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .roi-point {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid white;
+      transform: translate(-50%, -50%);
+    }
+
+    .roi-line {
+      position: absolute;
+      height: 2px;
+      transform-origin: left center;
+    }
+
+    /* Recording pulse animation */
+    .recording-dot {
+      animation: pulse 1s infinite;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+      <span class="sidebar-brand-text">VisionGuard</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item">
+        <a href="#" class="nav-link active" data-page="dashboard">
+          <i class="fas fa-grid-2"></i>
+          <span>Dashboard</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="#" class="nav-link" data-page="playback">
+          <i class="fas fa-play-circle"></i>
+          <span>Recordings</span>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="#" class="nav-link" data-page="settings">
+          <i class="fas fa-sliders"></i>
+          <span>Settings</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="status-dot" id="system-status-dot"></span>
+        <span id="system-status-text">System Online</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h1 class="page-title">Live Surveillance</h1>
+        <div class="header-actions">
+          <button class="btn-icon" id="low-power-toggle" title="Low Power Mode">
+            <i class="fas fa-leaf"></i>
+          </button>
+          <button class="btn-icon" id="theme-toggle" title="Toggle Theme">
+            <i class="fas fa-sun"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #f97316;"><i class="fas fa-thermometer-half"></i></div>
+          <div class="stat-value" id="sensor-temperature">--</div>
+          <div class="stat-label">Temperature</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #3b82f6;"><i class="fas fa-tint"></i></div>
+          <div class="stat-value" id="sensor-humidity">--</div>
+          <div class="stat-label">Humidity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #22c55e;"><i class="fas fa-battery-three-quarters"></i></div>
+          <div class="stat-value" id="sensor-voltage">--</div>
+          <div class="stat-label">Battery</div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- CAMERA FEEDS -->
+        <div class="col-xl-8">
+          <div class="glass-card">
+            <div class="card-header-custom">
+              <h3 class="card-title-custom">Camera Feeds</h3>
+            </div>
+            <div class="card-body-custom">
+              <div class="camera-grid" id="camera-grid">
+                {% for camera in cameras %}
+                <div class="glass-card camera-card" data-camera-index="{{ loop.index0 }}"
+                  data-camera-name="{{ camera }}">
+                  <div class="camera-feed">
+                    <i class="fas fa-video camera-placeholder"></i>
+                    <img id="video-stream-{{ loop.index0 }}" class="video-stream" src="/video_feed/{{ loop.index0 }}"
+                      alt="{{ camera }}">
+                    <div class="camera-overlay">
+                      <span class="camera-name">{{ camera }}</span>
+                      <span class="camera-status online" id="camera-status-badge-{{ loop.index0 }}">Connecting</span>
+                    </div>
+                    <span id="recording-indicator-{{ loop.index0 }}" class="camera-status recording d-none"
+                      style="position: absolute; top: 0.75rem; left: 0.75rem;">
+                      <i class="fas fa-circle me-1" style="font-size: 0.5em;"></i> REC
+                    </span>
+                    <button class="expand-btn" data-bs-toggle="modal" data-bs-target="#liveViewModal" title="Expand">
+                      <i class="fas fa-expand"></i>
+                    </button>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETECTION PANEL -->
+        <div class="col-xl-4">
+          <div class="glass-card mb-4">
+            <div class="card-header-custom">
+              <h3 class="card-title-custom">Detection Status</h3>
+              <span class="badge bg-secondary" id="roi-cam-name">All Cameras</span>
+            </div>
+            <div class="card-body-custom" id="global-status-body">
+              <div class="detection-panel">
+                <div class="detection-item traffic-stop">
+                  <div class="detection-label">Traffic Light</div>
+                  <div class="detection-value">--</div>
+                </div>
+                <div class="detection-item people-clear">
+                  <div class="detection-label">Pedestrians</div>
+                  <div class="detection-value">--</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-header-custom">
+              <h3 class="card-title-custom">Detection Zones</h3>
+            </div>
+            <div class="card-body-custom">
+              <button class="btn-primary-custom w-100" id="draw-zone-btn" data-bs-toggle="modal"
+                data-bs-target="#drawZoneModal">
+                <i class="fas fa-draw-polygon"></i>
+                Configure ROI Zones
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYBACK PAGE -->
+    <div id="page-playback" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Recordings</h1>
+      </div>
+
+      <div class="glass-card mb-4">
+        <div class="card-body-custom">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+              <label for="cam-filter" class="form-label">Filter by Camera</label>
+              <select id="cam-filter" class="form-select">
+                <option value="all" selected>All Cameras</option>
+                {% for camera in cameras %}
+                <option value="{{ camera }}">{{ camera }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-5">
+              <label for="date-filter" class="form-label">Filter by Date</label>
+              <select id="date-filter" class="form-select">
+                <option value="all" selected>All Dates</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button id="refresh-recordings" class="btn-primary-custom w-100">
+                <i class="fas fa-sync-alt"></i> Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>Camera</th>
+                <th>Date & Time</th>
+                <th>Duration</th>
+                <th>Size</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recordings-table-body">
+            </tbody>
+          </table>
+          <div id="recordings-loading" class="text-center text-muted p-4">
+            <div class="spinner-border spinner-border-sm" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Loading recordings...</span>
+          </div>
+          <div id="recordings-empty" class="text-center text-muted p-4 d-none">
+            <i class="fas fa-video-slash me-1"></i> No recordings found.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Settings</h1>
+      </div>
+
+      <form id="settings-form">
+        <div class="glass-card">
+          <div class="card-header-custom" style="border-bottom: none;">
+            <ul class="nav nav-tabs" id="settingsTabs" role="tablist" style="border: none;">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ai-tab" data-bs-toggle="tab" data-bs-target="#tab-ai" type="button"
+                  role="tab">AI & Alerts</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="recording-tab" data-bs-toggle="tab" data-bs-target="#tab-recording"
+                  type="button" role="tab">Recording</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="audio-tab" data-bs-toggle="tab" data-bs-target="#tab-audio" type="button"
+                  role="tab">Audio</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#tab-test" type="button"
+                  role="tab">Hardware Test</button>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body-custom">
+            <div class="tab-content" id="settingsTabsContent">
+              <!-- AI Tab -->
+              <div class="tab-pane fade show active" id="tab-ai" role="tabpanel">
+                <div class="mb-4">
+                  <label for="confidence-threshold" class="form-label">AI Confidence: <span
+                      id="confidence-display">50%</span></label>
+                  <input type="range" class="form-range" id="confidence-threshold" min="1" max="100" value="50" />
+                </div>
+                <div class="form-check form-switch fs-5 mb-3">
+                  <input class="form-check-input" type="checkbox" role="switch" id="led-enabled" />
+                  <label class="form-check-label" for="led-enabled">Enable On-Camera LED</label>
+                </div>
+                <div class="mb-4 col-md-8">
+                  <label for="led-blink-interval" class="form-label">LED Blink Interval: <span
+                      id="led-blink-display">0.5s</span></label>
+                  <input type="range" class="form-range" id="led-blink-interval" min="0.1" max="1.0" step="0.1"
+                    value="0.5" />
+                </div>
+              </div>
+
+              <!-- Recording Tab -->
+              <div class="tab-pane fade" id="tab-recording" role="tabpanel">
+                <div class="row">
+                  <div class="mb-4 col-md-6">
+                    <label for="recording-duration" class="form-label">Recording Segment Length (minutes)</label>
+                    <input type="number" class="form-control" id="recording-duration" min="1" max="60" value="5">
+                  </div>
+                  <div class="mb-4 col-md-6">
+                    <label for="retention-days" class="form-label">Recording Retention (days)</label>
+                    <input type="number" class="form-control" id="retention-days" min="1" max="90" value="30" />
+                  </div>
+                </div>
+                <div class="form-check form-switch fs-5">
+                  <input class="form-check-input" type="checkbox" role="switch" id="enable-recording" checked>
+                  <label class="form-check-label" for="enable-recording">Enable Recording</label>
+                </div>
+              </div>
+
+              <!-- Audio Tab -->
+              <div class="tab-pane fade" id="tab-audio" role="tabpanel">
+                <div class="row">
+                  <div class="mb-3 col-md-6">
+                    <label for="melintas-upload" class="form-label">"Go" Alert (.wav)</label>
+                    <input class="form-control" type="file" id="melintas-upload" accept=".wav" />
+                  </div>
+                  <div class="mb-3 col-md-6">
+                    <label for="berhenti-upload" class="form-label">"Stop" Alert (.wav)</label>
+                    <input class="form-control" type="file" id="berhenti-upload" accept=".wav" />
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-secondary w-100" id="reset-melintas-audio">Reset "Go"
+                      to Default</button>
+                  </div>
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-secondary w-100" id="reset-berhenti-audio">Reset "Stop"
+                      to Default</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Hardware Test Tab -->
+              <div class="tab-pane fade" id="tab-test" role="tabpanel">
+                <h5 class="fw-semibold mb-3">Test Hardware Components</h5>
+                <div class="glass-card mb-3" style="background: rgba(0,0,0,0.2);">
+                  <div class="card-body-custom">
+                    <h6><i class="fas fa-volume-up me-2"></i>Speaker Test</h6>
+                    <div class="d-flex gap-2 mt-3">
+                      <button type="button" class="btn btn-success" id="test-speaker-go">
+                        <i class="fas fa-play me-2"></i>Play "Go"
+                      </button>
+                      <button type="button" class="btn btn-danger" id="test-speaker-stop">
+                        <i class="fas fa-play me-2"></i>Play "Stop"
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card" style="background: rgba(0,0,0,0.2);">
+                  <div class="card-body-custom">
+                    <h6><i class="fas fa-lightbulb me-2"></i>LED Test</h6>
+                    <div class="d-flex gap-2 mt-3">
+                      <button type="button" class="btn btn-primary" id="test-led-on">Turn On</button>
+                      <button type="button" class="btn btn-secondary" id="test-led-off">Turn Off</button>
+                      <button type="button" class="btn btn-warning" id="test-led-blink">Blink (5s)</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-header-custom" style="border-top: 1px solid var(--border-subtle); border-bottom: none;">
+            <button type="button" class="btn btn-outline-secondary" id="reset-settings"><i
+                class="fas fa-undo me-2"></i>Reset</button>
+            <button type="submit" class="btn-primary-custom"><i class="fas fa-save me-2"></i>Save Settings</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- MODALS -->
+  <!-- Draw Zone Modal -->
+  <div class="modal fade" id="drawZoneModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="drawZoneModalLabel">Draw Detection Zones: <span>Camera</span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-9">
+              <div id="drawZoneModal-video-container">
+                <img id="drawZoneModal-video-stream" src="" alt="Loading stream..." />
+                <div id="drawZoneModal-overlay"></div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <h6 class="fw-semibold mb-3">Instructions</h6>
+              <ol class="small text-muted ps-3">
+                <li class="mb-2">Select zone type below</li>
+                <li class="mb-2">Click 4 points on video</li>
+                <li class="mb-2">Zone auto-saves after 4 points</li>
+              </ol>
+              <hr>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-danger" id="modal-draw-tl-red"><i class="fas fa-circle me-2"></i>Red
+                  Light Zone</button>
+                <button class="btn btn-outline-success" id="modal-draw-tl-green"><i class="fas fa-circle me-2"></i>Green
+                  Light Zone</button>
+                <button class="btn btn-outline-primary" id="modal-draw-people"><i class="fas fa-users me-2"></i>People
+                  Zone</button>
+                <button class="btn btn-outline-secondary" id="modal-clear-last"><i class="fas fa-undo me-2"></i>Undo
+                  Last</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger me-auto" id="modal-reset-all-roi"><i
+              class="fas fa-trash me-2"></i>Clear All</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live View Modal -->
+  <div class="modal fade" id="liveViewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="liveViewModalLabel">Live View: <span>Camera</span></h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="position-relative bg-black" style="aspect-ratio: 16 / 9;">
+            <img id="live-view-stream-img" src="" alt="Loading stream..." class="w-100 h-100"
+              style="object-fit: contain;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-lock me-2"></i>Admin Access</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted mb-3">Enter credentials to access settings.</p>
+          <div class="mb-3">
+            <label for="admin-username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="admin-username" placeholder="Enter username">
+          </div>
+          <div class="mb-3">
+            <label for="admin-password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="admin-password" placeholder="Enter password">
+          </div>
+          <div id="login-error" class="alert alert-danger d-none small py-2">
+            <i class="fas fa-exclamation-circle me-1"></i> Invalid credentials
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn-primary-custom" id="admin-login-btn">Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+  <script src="{{ url_for('static', filename='index.js') }}"></script>
+
+</body>
+
+</html>
