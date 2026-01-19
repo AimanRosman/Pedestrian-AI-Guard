@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let isAdminLoggedIn = false;
 
 function initializeNavigation() {
-  const navLinks = document.querySelectorAll('#main-nav .nav-link');
+  const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
   const pages = {
     dashboard: document.getElementById('page-dashboard'),
     playback: document.getElementById('page-playback'),
@@ -832,19 +832,29 @@ function loadSettings() {
     .then(data => {
       globalSettings = data; // Cache settings
 
-      // AI & Alerts
-      document.getElementById('confidence-threshold').value = data.confidence_threshold;
-      document.getElementById('confidence-display').textContent = data.confidence_threshold + '%';
-      document.getElementById('audio-cooldown').value = data.audio_cooldown;
-      document.getElementById('led-enabled').checked = data.led_enabled;
-      document.getElementById('led-blink-interval').value = data.led_blink_interval;
-      document.getElementById('led-blink-display').textContent = data.led_blink_interval + 's';
+      // AI & Alerts - with null checks
+      const confThreshold = document.getElementById('confidence-threshold');
+      const confDisplay = document.getElementById('confidence-display');
+      const audioCooldown = document.getElementById('audio-cooldown');
+      const ledEnabled = document.getElementById('led-enabled');
+      const ledBlinkInterval = document.getElementById('led-blink-interval');
+      const ledBlinkDisplay = document.getElementById('led-blink-display');
 
-      // Recording
-      // Convert seconds back to minutes for the form
-      document.getElementById('recording-duration').value = data.recording_duration / 60;
-      document.getElementById('retention-days').value = data.retention_days;
-      document.getElementById('enable-recording').checked = data.enable_recording;
+      if (confThreshold) confThreshold.value = data.confidence_threshold;
+      if (confDisplay) confDisplay.textContent = data.confidence_threshold + '%';
+      if (audioCooldown) audioCooldown.value = data.audio_cooldown;
+      if (ledEnabled) ledEnabled.checked = data.led_enabled;
+      if (ledBlinkInterval) ledBlinkInterval.value = data.led_blink_interval;
+      if (ledBlinkDisplay) ledBlinkDisplay.textContent = data.led_blink_interval + 's';
+
+      // Recording - with null checks
+      const recordingDuration = document.getElementById('recording-duration');
+      const retentionDays = document.getElementById('retention-days');
+      const enableRecording = document.getElementById('enable-recording');
+
+      if (recordingDuration) recordingDuration.value = data.recording_duration / 60;
+      if (retentionDays) retentionDays.value = data.retention_days;
+      if (enableRecording) enableRecording.checked = data.enable_recording;
     })
     .catch(error => console.error('Error loading settings:', error));
 }

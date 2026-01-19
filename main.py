@@ -483,7 +483,7 @@ class Config:
         'led_blink_interval': 0.5,
         'speaker_relay_enabled': True,
         'speaker_relay_pin': 27,  # GPIO 27 for speaker relay
-        'camera_indices': [0, 2, 4],  # Actual USB camera indices on this system
+        'camera_indices': [0, 2, 4],  # USB camera indices on Raspberry Pi
         'camera_device_paths': [],  # List of device paths e.g. ["/dev/video0", "/dev/video2"]
         'max_cameras': 3,
         'camera_retry_count': 5,  # Increased from 2
@@ -569,8 +569,8 @@ class CameraDetector:
                 for attempt in range(retry_count):
                     cap = None
                     try:
-                        # Use cv2.CAP_DSHOW on Windows to avoid some delays/errors, or CAP_ANY
-                        backend = cv2.CAP_DSHOW if os.name == 'nt' else cv2.CAP_ANY
+                        # Use cv2.CAP_ANY for maximum compatibility
+                        backend = cv2.CAP_ANY
                         cap = cv2.VideoCapture(camera_index, backend)
 
                         if cap.isOpened():
@@ -1487,8 +1487,9 @@ class CameraProcessor:
         """Initialize the camera with general settings"""
         logger.warning(f"Attempting to initialize camera {self.camera_index} ({self.camera_name})")
 
-        # Determine backend based on camera_index type
+        # Determine backend based on camera_index type and OS
         is_device_path = isinstance(self.camera_index, str)
+        # Use CAP_ANY for maximum compatibility on all platforms
         backend = cv2.CAP_V4L2 if is_device_path else cv2.CAP_ANY
         backend_name = "CAP_V4L2" if is_device_path else "CAP_ANY"
 

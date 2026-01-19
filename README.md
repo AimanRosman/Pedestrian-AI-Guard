@@ -61,6 +61,21 @@ graph TD
 - **Frontend**: `HTML5`, `CSS3 (Variables/Grid)`, `Bootstrap 5`, `JavaScript (ES6)`
 - **Hardware Integration**: `RPi.GPIO`, `gpiod`, `Adafruit_DHT`, `I2C (ADS1115)`
 
+## ⚙️ Hardware Configuration
+
+This system is optimized for the following Raspberry Pi deployment:
+
+| Component | Specification |
+|-----------|---------------|
+| **SBC** | Raspberry Pi 5 (4GB/8GB) |
+| **Cameras** | 3× USB Webcams (indices 0, 2, 4) |
+| **Storage** | PCIe SSD (mounted at `/media/pi/rootfs`) |
+| **Audio** | USB Speaker + GPIO Relay (Pin 27) |
+| **Visual Alert** | LED Warning Light (GPIO Pin 17) |
+| **Sensors** | DHT11 (Temp/Humidity), ADS1115 (Battery Voltage) |
+
+> **Note**: Recordings are stored on the external SSD (`/media/pi/rootfs/recordings`) to avoid filling up the Pi's internal storage and to enable higher I/O performance for continuous video recording.
+
 ## 🔧 Installation
 
 ### Prerequisites
