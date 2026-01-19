@@ -585,13 +585,9 @@ class CameraDetector:
                             cap.release()
 
                     time.sleep(0.5)
-        if device_paths:
-            # ... (keep existing device path logic) ...
-            pass # Simplified for this diff, assume existing logic is fine or irrelevant for Windows
         else:
             # Fall back to index-based detection
-            # REDUCED from 10 to 2 to avoid "weird" index out of range errors on typical laptops
-            indices_to_test = explicit_indices if explicit_indices else range(2) 
+            indices_to_test = explicit_indices if explicit_indices else range(max_cameras)
 
             for camera_index in indices_to_test:
                 logger.warning(f"Testing camera index {camera_index}...")
@@ -599,9 +595,8 @@ class CameraDetector:
                 for attempt in range(retry_count):
                     cap = None
                     try:
-                        # Use cv2.CAP_DSHOW on Windows to avoid some delays/errors, or CAP_ANY
-                        backend = cv2.CAP_DSHOW if os.name == 'nt' else cv2.CAP_ANY
-                        cap = cv2.VideoCapture(camera_index, backend)
+                        # Use cv2.CAP_ANY to let OpenCV choose the best backend
+                        cap = cv2.VideoCapture(camera_index, cv2.CAP_ANY)
 
                         if cap.isOpened():
                             ret, test_frame = cap.read()
@@ -638,11 +633,21 @@ class ModelManager:
         self._load_model()
     
     def _setup_device(self):
-        """Setup the device for inference - Forced to CPU for Raspberry Pi"""
-        # User requested to remove CUDA check for potential performance/compatibility on Pi
-        self.device = torch.device('cpu')
-        self.use_gpu = False
-        logger.warning(f"Device set to CPU (Raspberry Pi Mode)")
+        """Setup the device (GPU/CPU) for inference - generalized"""
+        if torch.cuda.is_available():
+            try:
+                self.device = torch.device('cuda')
+                logger.warning(f"Using device: {self.device}")
+                logger.warning(f"GPU: {torch.cuda.get_device_name(0)}")
+                torch.backends.cudnn.benchmark = True
+            except Exception as e:
+                logger.warning(f"CUDA test failed: {e}. Falling back to CPU.")
+                self.device = torch.device('cpu')
+                self.use_gpu = False
+        else:
+            self.device = torch.device('cpu')
+            self.use_gpu = False
+            logger.warning("CUDA not available, using CPU")
     
     def _load_model(self):
         """
