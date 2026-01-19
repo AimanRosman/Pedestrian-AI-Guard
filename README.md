@@ -26,18 +26,6 @@ This project was engineered to solve the "blind spot" problem in urban environme
 - **💾 Intelligent Recording**: Automated loop recording with localized storage and easy playback retrieval.
 - **💻 Cross-Platform**: Runs seamlessly on **Raspberry Pi 4/5** and **Windows** (Simulation Mode).
 
-## 📊 Performance Benchmarks (Raspberry Pi 5)
-
-| Metric | Optimized Result | Note |
-|--------|------------------|------|
-| **Inference Latency** | **~39ms** | Achieve ~25 FPS using NMS-free YOLO26n architecture. |
-| **Detection Recall** | **94.5%** | Measured for pedestrians within configured ROI zones (Daylight). |
-| **Signal Accuracy** | **92.0%** | Reliability in distinguishing Red vs. Green traffic states. |
-| **System Uptime** | **99.9%** | Stability observed during 24-hour continuous surveillance stress tests. |
-
-> [!NOTE]
-> **Testing Environment**: Benchmarks conducted on a Raspberry Pi 5 (8GB) using localized ROI zones with optimal daylighting. Real-world performance may vary based on weather conditions, camera quality, and background complexity.
-
 ## 🏗️ System Architecture & Workflow
 
 VisionGuard operates on a high-concurrency, multithreaded architecture designed for real-time edge processing:
