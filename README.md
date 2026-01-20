@@ -31,19 +31,7 @@ This project was engineered to solve the "blind spot" problem in urban environme
 VisionGuard operates on a high-concurrency, multithreaded architecture designed for real-time edge processing:
 
 ### 1. High-Level Workflow
-```mermaid
-graph TD
-    A[Camera Streams] --> B[CameraProcessor Threads]
-    B --> C{AI Inference Loop}
-    C -->|YOLO26| D[Object Detection]
-    D --> E[ROI Filtering]
-    E --> F[Global State Manager]
-    F --> G[MessageManager]
-    F --> H[Flask Web Dashboard]
-    G -->|Logic| I[Audio Alerts]
-    G -->|Logic| J[LED Warning System]
-    H -->|User Input| E[ROI Config Update]
-```
+![System Workflow](workflow.png)
 
 ### 2. Operational Breakdown
 1.  **Initialization**: The system initializes the hardware abstraction layer (HAL), falling back to simulation mode if GPIO libraries are missing. It then loads the **YOLO26n** model optimized for the specific device.
